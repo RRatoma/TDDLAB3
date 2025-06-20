@@ -68,13 +68,13 @@ describe("Gilded Rose", function() {
     expect(items[0].quality).toBe(0);
   });
 
-  it("Conjured Items decrease in quality twice as fast", function() {
+  it("Conjured Items decrease in quality twice as fast (-2)", function() {
     items = [new Item("Conjured Mana Cake", 3, 6)];
     update_quality();
     expect(items[0].quality).toBe(4);
   });
 
-  it("Conjured Items decrease in quality by 4 after sell_in date", function() {
+  it("Conjured Items decrease in quality by 4 after sell_in date (-4)", function() {
     items = [new Item("Conjured Mana Cake", 0, 6)];
     update_quality();
     expect(items[0].quality).toBe(2);

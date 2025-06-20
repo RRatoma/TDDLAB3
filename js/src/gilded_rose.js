@@ -14,49 +14,43 @@ items.push(new Item('Backstage passes to a TAFKAL80ETC concert', 15, 20));
 items.push(new Item('Conjured Mana Cake', 3, 6));
 
 function update_quality() {
-  for (var i = 0; i < items.length; i++) {
-    if (items[i].name != 'Aged Brie' && items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-      if (items[i].quality > 0) {
-        if (items[i].name != 'Sulfuras, Hand of Ragnaros') {
-          items[i].quality = items[i].quality - 1
-        }
-      }
-    } else {
-      if (items[i].quality < 50) {
-        items[i].quality = items[i].quality + 1
-        if (items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
-          if (items[i].sell_in < 11) {
-            if (items[i].quality < 50) {
-              items[i].quality = items[i].quality + 1
-            }
-          }
-          if (items[i].sell_in < 6) {
-            if (items[i].quality < 50) {
-              items[i].quality = items[i].quality + 1
-            }
-          }
-        }
-      }
+  for (let i = 0; i < items.length; i++) {
+    let item = items[i];
+    let isConjured = item.name.toLowerCase().includes("conjured");
+
+    if (item.name === "Sulfuras, Hand of Ragnaros") {
+      continue; // Legendary can not be sold or degraded
     }
-    if (items[i].name != 'Sulfuras, Hand of Ragnaros') {
-      items[i].sell_in = items[i].sell_in - 1;
+
+    // Default degradation value
+    let degrade = 1;
+
+    // Aged Brie increases in quality but not above 50
+    if (item.name === "Aged Brie") {
+      if (item.quality < 50) item.quality++;
     }
-    if (items[i].sell_in < 0) {
-      if (items[i].name != 'Aged Brie') {
-        if (items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-          if (items[i].quality > 0) {
-            if (items[i].name != 'Sulfuras, Hand of Ragnaros') {
-              items[i].quality = items[i].quality - 1
-            }
-          }
-        } else {
-          items[i].quality = items[i].quality - items[i].quality
-        }
+
+    // Backstage passes increases in Quality based on sell_in if not expired
+    else if (item.name === "Backstage passes to a TAFKAL80ETC concert") {
+      if (item.sell_in <= 0) {
+        item.quality = 0;
+      } else if (item.sell_in <= 5) {
+        item.quality = Math.min(item.quality + 3, 50);
+      } else if (item.sell_in <= 10) {
+        item.quality = Math.min(item.quality + 2, 50);
       } else {
-        if (items[i].quality < 50) {
-          items[i].quality = items[i].quality + 1
-        }
+        item.quality = Math.min(item.quality + 1, 50);
       }
     }
+
+    // Normal and conjured items
+    else {
+      if (isConjured) degrade *= 2; // Conjured items degrade twice as fast
+      if (item.sell_in <= 0) degrade *= 2;  // After sell_in, degrade twice as fast
+      item.quality = Math.max(0, item.quality - degrade);     // Quality degrades for everything but not below 0
+    }
+
+    // Decrease sell_in for all but Sulfuras
+    item.sell_in--;
   }
 }
